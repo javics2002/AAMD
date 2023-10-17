@@ -44,7 +44,14 @@ def compute_gradient(x, y, w, b):
       dj_dw (scalar): The gradient of the cost w.r.t. the parameters w
       dj_db (scalar): The gradient of the cost w.r.t. the parameter b     
      """
+    n = len(y)
 
+    predictions = np.dot(x, w) + b
+    error = predictions - y
+    
+    dj_dw = (1 / n) * np.dot(error, x)
+    dj_db = (1 / n) * np.sum(error)
+    
     return dj_dw, dj_db
 
 
@@ -72,5 +79,15 @@ def gradient_descent(x, y, w_in, b_in, cost_function, gradient_function, alpha, 
       J_history : (ndarray): Shape (num_iters,) J at each iteration,
           primarily for graphing later
     """
+    
+    w, b = w_in, b_in
+    J_history = np.zeros(num_iters)
+    
+    for i in range(num_iters):
+        J_history[i] = cost_function(x, y, w, b)
+        grad_w, grad_b = gradient_function(x, y, w, b)
+        
+        w -= alpha * grad_w
+        b -= alpha * grad_b
 
     return w, b, J_history
