@@ -2,6 +2,20 @@ import numpy as np
 import copy
 import math
 
+def load_data(file_path):
+    data = []
+    with open(file_path, 'r') as file:
+        for line in file:
+            # Dividir la línea en valores y convertirlos a números
+            values = line.strip().split(',')
+            size = float(values[0])
+            bedrooms = float(values[1])
+            floors = float(values[2])
+            age = float(values[3])
+            price = float(values[4])
+            # Crear una tupla con los valores y agregarla a la lista de datos
+            data.append([size, bedrooms, floors, age, price])
+    return data
 
 def zscore_normalize_features(X):
     """
@@ -60,12 +74,13 @@ def compute_gradient(X, y, w, b):
     n = len(y)
 
     predictions = np.dot(X, w) + b
+    
     error = predictions - y
     
     dj_dw = (1 / n) * np.dot(X.T, error)
     dj_db = (1 / n) * np.sum(error)
 
-    return dj_db, dj_dw
+    return dj_dw, dj_db
 
 
 def gradient_descent(X, y, w_in, b_in, cost_function,
@@ -92,12 +107,13 @@ def gradient_descent(X, y, w_in, b_in, cost_function,
           primarily for graphing later
     """
     
-    w, b = w_in, b_in
+    w = w_in
+    b = b_in
     J_history = np.zeros(num_iters)
     
     for i in range(num_iters):
-        J_history[i] = cost_function(X.T, y, w, b)
-        grad_b, grad_w = gradient_function(X, y, w, b)
+        J_history[i] = cost_function(X, y, w, b)
+        grad_w, grad_b = gradient_function(X, y, w, b)
         
         w -= alpha * grad_w
         b -= alpha * grad_b

@@ -25,7 +25,7 @@ def compute_cost_test(target):
 def compute_gradient_test(target):
     X_train, y_train, w_init, b_init = test_data()
 
-    dj_db, dj_dw = target(X_train, y_train, w_init, b_init)
+    dj_dw, dj_db = target(X_train, y_train, w_init, b_init)
     #assert dj_dw.shape == w_init.shape, f"Wrong shape for dj_dw. {dj_dw} != {w_init.shape}"
 
     target_dj_db = -1.6739251122999121e-06
