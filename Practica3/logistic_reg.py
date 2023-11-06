@@ -87,6 +87,16 @@ def compute_cost_reg(X, y, w, b, lambda_=1):
       total_cost: (scalar)         cost 
     """
 
+    m = X.shape[0]
+
+    z = np.dot(X, w) + b
+
+    logistic_loss = -y * np.log(sigmoid(z)) - (1 - y) * np.log(1 - sigmoid(z))
+
+    regularization_term = (lambda_ / (2 * m)) * np.sum(w ** 2)
+
+    total_cost = (1 / m) * np.sum(logistic_loss) + regularization_term
+
     return total_cost
 
 
@@ -105,6 +115,13 @@ def compute_gradient_reg(X, y, w, b, lambda_=1):
       dj_dw: (ndarray Shape (n,)) The gradient of the cost w.r.t. the parameters w. 
 
     """
+
+    m = X.shape[0]
+
+    z = np.dot(X, w) + b
+
+    dj_db = (1/m) * np.sum(sigmoid(z) - y)
+    dj_dw = (1/m) * np.dot(X.T, (sigmoid(z) - y)) + (lambda_ / m) * w
 
     return dj_db, dj_dw
 
@@ -171,5 +188,9 @@ def predict(X, w, b):
     p: (ndarray (m,1))
         The predictions for X using a threshold at 0.5
     """
+
+    z = np.dot(X, w) + b
+
+    p = (sigmoid(z) >= 0.5).astype(int)
 
     return p
