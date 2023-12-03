@@ -4,6 +4,9 @@ import numpy as np
 def sig(z):
     return 1/(1+np.exp(-z))
 
+def sig_gradient(z):
+    return sig(z) * (1 - sig(z))
+
 ###########################################################################
 # data display
 #
