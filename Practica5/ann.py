@@ -2,6 +2,30 @@ import numpy as np
 from utils import sig
 
 def feedForward(theta1, theta2, a1):
+    """
+    Perform feedforward propagation in a neural network.
+
+    Parameters
+    ----------
+    theta1 : array_like
+        Weights for the first layer in the neural network.
+        It has shape (2nd hidden layer size x input size).
+    theta2: array_like
+        Weights for the second layer in the neural network.
+        It has shape (output layer size x 2nd hidden layer size).
+    a1 : array_like
+        Input data with shape (number of examples x input size).
+
+    Returns
+    -------
+    a1 : array_like
+        Input data with bias term added.
+    a2 : array_like
+        Activations in the second layer.
+    a3 : array_like
+        Activations in the output layer.
+    """
+    
     m = a1.shape[0]
     a1s = np.hstack([np.ones((m, 1)), a1])
     
@@ -9,9 +33,10 @@ def feedForward(theta1, theta2, a1):
     
     a2 = sig(np.dot(a1s, theta1.T))
     
-    a2 = np.hstack([np.ones((m, 1)), a1])
+    a2 = np.hstack([np.ones((m, 1)), a2])
     
-    a3 = sig(np.dot(a1, theta2.T))
+    a3 = sig(np.dot(a2, theta2.T))
+    print(a3.shape)
     
     return a1, a2, a3
 
@@ -45,6 +70,21 @@ def predict(theta1, theta2, a1):
     return p
 
 def predict_without_feedforward(a3):
+    """
+    Predict the label given the activations in the output layer.
+
+    Parameters
+    ----------
+    a3 : array_like
+        Activations in the output layer.
+
+    Returns
+    -------
+    p : array_like
+        Predictions vector containing the predicted label for each example.
+        It has a length equal to the number of examples.
+    """
+    
     p = np.argmax(a3, axis=1)
 
     return p
@@ -82,17 +122,15 @@ def cost(theta1, theta2, X, y, lambda_):
 
     m = len(y)
     
-    predictions = predict(theta1, theta2, X)
+    a1, a2, a3 = feedForward(theta1, theta2, X)
+    predictions = a3
     
     J = (-1 / m) * np.sum(y * np.log(predictions) + (1 - y) * np.log(1 - predictions))
     
     reg_term = 0
     
-    reg_term += np.sum(theta1 ** 2)
-    reg_term += np.sum(theta2 ** 2)
-    
-    #reg_term += np.sum(theta1[:, 1:] ** 2)
-    #reg_term += np.sum(theta2[:, 1:] ** 2)
+    reg_term += np.sum(theta1[:, 1:] ** 2)
+    reg_term += np.sum(theta2[:, 1:] ** 2)
         
     reg_term *= (lambda_ / (2 * m))
     
