@@ -16427,7 +16427,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b54459dca25cfd947aa2a536fafe9c89, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  recordMode: 0
+  recordMode: 1
   perception: {fileID: 1910917298}
   kart: {fileID: 1304724376}
   keyboardInput: {fileID: 1304724378}
@@ -18772,7 +18772,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   text: {fileID: 0}
   model: 0
-  agentEnable: 1
+  agentEnable: 0
 --- !u!1001 &1931383003
 PrefabInstance:
   m_ObjectHideFlags: 0

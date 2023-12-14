@@ -115,6 +115,12 @@ public class Record : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.R))
         {
             recordMode = !recordMode;
+
+            if(!recordMode) {
+                parameters.Clear();
+                labels.Clear();
+                Save();
+			}
         }
 
         if (recordMode)
@@ -206,15 +212,25 @@ public class Record : MonoBehaviour
 
     private void OnDestroy()
     {
-        if(saveWhenFinish && recordMode)
-        {
-            string csvFormat = ConvertToCSV(parametersName, parameters, labels);
-            File.WriteAllText(csvOutput, csvFormat);
-            Debug.Log("File "+ csvOutput + " save");
-        }
-    }
+        if(saveWhenFinish && recordMode) {
+			Save();
+		}
+	}
 
-    public static string ConvertToCSV(string[] parametersName,List<Parameters> parameters,List<Labels> labels)
+	private void Save() {
+		string csvFormat = ConvertToCSV(parametersName, parameters, labels);
+		int fileNumber = 0;
+		string[] splitFileName = csvOutput.Split(".");
+		string numberedFile = splitFileName[0] + fileNumber.ToString("00") + "." + splitFileName[1];
+		while (File.Exists(numberedFile)) {
+			fileNumber++;
+			numberedFile = splitFileName[0] + fileNumber.ToString("00") + "." + splitFileName[1];
+		}
+		File.WriteAllText(numberedFile, csvFormat);
+		Debug.Log("File " + numberedFile + " save");
+	}
+
+	public static string ConvertToCSV(string[] parametersName,List<Parameters> parameters,List<Labels> labels)
     {
         string csv = "";
         for(int i = 0; i < parametersName.Length; i++)

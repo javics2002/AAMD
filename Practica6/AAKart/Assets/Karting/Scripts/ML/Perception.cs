@@ -68,5 +68,4 @@ public class Perception : MonoBehaviour
             return perceptionInfo;
         }
     }
-
 }
