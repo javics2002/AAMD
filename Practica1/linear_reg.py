@@ -44,13 +44,14 @@ def compute_gradient(x, y, w, b):
       dj_dw (scalar): The gradient of the cost w.r.t. the parameters w
       dj_db (scalar): The gradient of the cost w.r.t. the parameter b     
      """
-    n = len(y)
+    
+    m = len(y)
 
     predictions = np.dot(x, w) + b
     error = predictions - y
     
-    dj_dw = (1 / n) * np.dot(error, x)
-    dj_db = (1 / n) * np.sum(error)
+    dj_dw = (1 / m) * np.dot(error, x)
+    dj_db = (1 / m) * np.sum(error)
     
     return dj_dw, dj_db
 
