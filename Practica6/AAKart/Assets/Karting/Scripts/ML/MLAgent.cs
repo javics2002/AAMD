@@ -1,5 +1,9 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+
 using UnityEngine;
 
 using static UnityEditor.Experimental.GraphView.GraphView;
@@ -36,8 +40,8 @@ public class MLPParameters
         coeficients[i][row, col] = v;
     }
 
-	public float[,] GetCoeficient(int index) {
-		return coeficients[index];
+	public List<float[,]> GetCoeficientList() {
+		return coeficients;
 	}
 
 	public void CreateIntercept(int i, int row)
@@ -78,34 +82,58 @@ public class MLPModel
         Parameters parameters = Record.ReadParameters(8, Time.timeSinceLevelLoad, p, transform);
         float[] input=parameters.ConvertToFloatArrat();
 
-		//TODO: implement feedworward.
-		//the size of the output layer depends on what actions you have performed in the game.
-		//By default it is 7 (number of possible actions) but some actions may not have been performed and therefore the model has assumed that they do not exist.
-		List<float> activation = new List<float>();
-		activation.AddRange(input);
+        //TODO: implement feedworward.
+        //the size of the output layer depends on what actions you have performed in the game.
+        //By default it is 7 (number of possible actions) but some actions may not have been performed and therefore the model has assumed that they do not exist.
+        List<float[]> activations = new List<float[]>();
 
-        //Limpiar el input de valores no usados por el perceptron
-        activation.RemoveRange(5, 4);
+        const int numRays = 5;
+        activations.Add(new float[numRays]);
+        for (int i = 0; i < numRays; i++) {
+			if (input[i] == -1)
+				activations[0][i] = 1;
+			else
+				activations[0][i] = input[i] / p.distance[i];
+		}
+            
+		activations[0] = AddOnesColumn(activations[0]);
 
-		for (int c = 0; c < mlpParameters.GetLayers() - 1; c++) {
-			float[,] coefficient = mlpParameters.GetCoeficient(c);
-			float[] intercepts = mlpParameters.GetIntercept(c);
-			float[] z = new float[coefficient.GetLength(1)];
+		List<float[,]> thetaList = mlpParameters.GetCoeficientList();
 
-			for (int i = 0; i < z.Length; i++) {
-				z[i] = intercepts[i];
-				for (int j = 0; j < activation.Count; j++) {
-					z[i] += activation[j] * coefficient[j, i];
+        for (int k = 0; k < thetaList.Count; k++) {
+            float[] z = new float[activations[k].Length - 1];
+
+            for (int i = 0; i < z.Length; i++) {
+                z[i] = 0;
+                for (int j = 0; j < z.Length; j++) {
+                    z[i] += activations[k][i] * thetaList[k][j, i];
+                }
+            }
+
+			if (k < thetaList.Count - 1) {
+                activations[k] = AddOnesColumn(activations[k]);
+
+				activations.Add(new float[thetaList[k + 1].GetLength(1)]);
+
+				for (int i = 0; i < thetaList[k + 1].GetLength(1); i++) {
+					activations[k + 1][i] = Sigmoid(z[i]);
 				}
-			}
-
-			activation.Clear();
-			for (int i = 0; i < z.Length; i++) {
-				activation.Add(Sigmoid(z[i]));
 			}
 		}
 
-		return activation.ToArray();
+		return activations[activations.Count - 1];
+	}
+
+	private float[] AddOnesColumn(float[] vector) {
+		int length = vector.Length;
+		float[] result = new float[length + 1];
+		result[0] = 1.0f; // Bias term
+
+		for (int i = 1; i <= length; i++) {
+			result[i] = vector[i - 1];
+		}
+
+		return result;
 	}
 
 	float Sigmoid(float z) {
@@ -235,6 +263,7 @@ public class MLAgent : MonoBehaviour
         float[] result = new float[values.Length];
         for (int i = 0; i < values.Length; i++)
         {
+            values[i] = values[i].Replace('.', ',');
             result[i] = float.Parse(values[i]);
         }
         return result;
@@ -247,10 +276,10 @@ public class MLAgent : MonoBehaviour
         MLPParameters mlpParameters = null;
         int currentParameter = -1;
         int[] currentDimension = null;
-        
-        for (int i = 0; i < lines.Length; i++)
+		bool coefficient = false, intercept = false;
+		for (int i = 0; i < lines.Length; i++)
         {
-			bool coefficient = false, intercept = false;
+			
 
 			string line = lines[i];
             line = line.Trim();
@@ -282,14 +311,19 @@ public class MLAgent : MonoBehaviour
                             if (val.StartsWith("coefficient"))
                             {
                                 coefficient = true;
+                                intercept = false;
                                 int index = currentParameter / 2;
                                 mlpParameters.CreateCoeficient(currentParameter, currentDimension[0], currentDimension[1]);
                             }
                             else if (val.StartsWith("intercepts")) {
                                 intercept = true;
-                                mlpParameters.CreateIntercept(currentParameter, currentDimension[1]);
+								coefficient = false;
+								mlpParameters.CreateIntercept(currentParameter, currentDimension[1]);
                             }
-
+                            else {
+								coefficient = false;
+								intercept = false;
+							}
                         }
                         else if (name == "values")
                         {
@@ -307,7 +341,7 @@ public class MLAgent : MonoBehaviour
                                 else if (intercept)
                                 {
                                     mlpParameters.SetIntercept(currentParameter, index, parameters[index]);
-                                }
+								}
                             }
                         }
                     }

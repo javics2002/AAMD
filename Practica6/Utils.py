@@ -3,6 +3,12 @@ from onnx2json import convert
 import pickle
 import json
 
+def IsParameterValid(parameter, parameter_name):
+    if(parameter == 0):
+        return parameter_name == "coefficient" or parameter_name == "intercepts"
+    else:
+        return parameter_name == f"coefficient{parameter}" or parameter_name == f"intercepts{parameter}"
+
 def ExportONNX_JSON_TO_Custom(onnx_json,mlp):
     graphDic = onnx_json["graph"]
     initializer = graphDic["initializer"]
@@ -10,6 +16,9 @@ def ExportONNX_JSON_TO_Custom(onnx_json,mlp):
     index = 0
     parameterIndex = 0
     for parameter in initializer:
+        if not IsParameterValid(parameterIndex, parameter["name"]):
+           continue
+
         s += "parameter:"+str(parameterIndex)+"\n"
         s += "dims:"+str(parameter["dims"])+"\n"
         s += "name:"+str(parameter["name"])+"\n"
