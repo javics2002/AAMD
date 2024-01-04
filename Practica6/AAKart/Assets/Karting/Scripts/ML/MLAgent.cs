@@ -86,19 +86,17 @@ public class MLPModel
         //the size of the output layer depends on what actions you have performed in the game.
         //By default it is 7 (number of possible actions) but some actions may not have been performed and therefore the model has assumed that they do not exist.
         List<float[]> activations = new List<float[]>();
-
-        const int numRays = 5;
-        activations.Add(new float[numRays]);
-        for (int i = 0; i < numRays; i++) {
+		List<float[,]> thetaList = mlpParameters.GetCoeficientList();
+        
+        activations.Add(new float[thetaList[0].GetLength(0)]);
+		for (int i = 0; i < activations[0].Length; i++) {
 			if (input[i] == -1)
 				activations[0][i] = 1;
 			else
 				activations[0][i] = input[i] / p.distance[i];
 		}
-            
-		activations[0] = AddOnesColumn(activations[0]);
 
-		List<float[,]> thetaList = mlpParameters.GetCoeficientList();
+		activations[0] = AddOnesColumn(activations[0]);
 
         for (int k = 0; k < thetaList.Count; k++) {
             float[] z = new float[activations[k].Length - 1];
@@ -148,24 +146,18 @@ public class MLPModel
 	/// <returns></returns>
 	public Labels ConvertIndexToLabel(int index)
     {
-		switch (index) {
-			case 0:
-				return Labels.NONE;
-			case 1:
-				return Labels.ACCELERATE;
-			case 2:
-				return Labels.LEFT_ACCELERATE;
-			case 3:
-				return Labels.RIGHT_ACCELERATE;
-			default:
-				return Labels.NONE;
-		}
+		return index switch {
+			0 => Labels.ACCELERATE,
+			1 => Labels.LEFT_ACCELERATE,
+			2 => Labels.NONE,
+			3 => Labels.RIGHT_ACCELERATE,
+			_ => Labels.NONE,
+		};
 	}
 
     public Labels Predict(float[] output)
     {
         int index = GetIndexMaxValue(output, out float max);
-        Debug.Log(index + " " + max);
         Labels label = ConvertIndexToLabel(index);
         return label;
     }

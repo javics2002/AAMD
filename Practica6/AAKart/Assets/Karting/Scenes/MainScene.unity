@@ -12654,7 +12654,7 @@ PrefabInstance:
     - target: {fileID: 403965902444250509, guid: 19954de30401f73428254541a9ad156e,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 403965902444250510, guid: 19954de30401f73428254541a9ad156e,
         type: 3}
@@ -18780,7 +18780,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 05ee481059e048e439f5fdf43f3e9d67, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  text: {fileID: 4900000, guid: 859965ae9fffddf4bb14bfba66c636cf, type: 3}
+  text: {fileID: 4900000, guid: 1571ef01d089b5f468df3a70f19fe43d, type: 3}
   model: 0
   agentEnable: 1
 --- !u!1001 &1931383003
