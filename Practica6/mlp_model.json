@@ -1,0 +1,296 @@
+{
+  "irVersion": "9",
+  "producerName": "skl2onnx",
+  "producerVersion": "1.16.0",
+  "domain": "ai.onnx",
+  "modelVersion": "0",
+  "docString": "",
+  "graph": {
+    "node": [
+      {
+        "input": [
+          "X"
+        ],
+        "output": [
+          "cast_input"
+        ],
+        "name": "Cast",
+        "opType": "Cast",
+        "attribute": [
+          {
+            "name": "to",
+            "i": "11",
+            "type": "INT"
+          }
+        ],
+        "domain": ""
+      },
+      {
+        "input": [
+          "cast_input",
+          "coefficient"
+        ],
+        "output": [
+          "mul_result"
+        ],
+        "name": "MatMul",
+        "opType": "MatMul",
+        "domain": ""
+      },
+      {
+        "input": [
+          "mul_result",
+          "intercepts"
+        ],
+        "output": [
+          "add_result"
+        ],
+        "name": "Add",
+        "opType": "Add",
+        "domain": ""
+      },
+      {
+        "input": [
+          "add_result"
+        ],
+        "output": [
+          "out_activations_result"
+        ],
+        "name": "Tanh",
+        "opType": "Softmax",
+        "domain": ""
+      },
+      {
+        "input": [
+          "out_activations_result"
+        ],
+        "output": [
+          "argmax_output"
+        ],
+        "name": "ArgMax",
+        "opType": "ArgMax",
+        "attribute": [
+          {
+            "name": "axis",
+            "i": "1",
+            "type": "INT"
+          }
+        ],
+        "domain": ""
+      },
+      {
+        "input": [
+          "out_activations_result"
+        ],
+        "output": [
+          "output_probability"
+        ],
+        "name": "ZipMap",
+        "opType": "ZipMap",
+        "attribute": [
+          {
+            "name": "classlabels_int64s",
+            "ints": [
+              "0",
+              "1",
+              "2",
+              "3"
+            ],
+            "type": "INTS"
+          }
+        ],
+        "domain": "ai.onnx.ml"
+      },
+      {
+        "input": [
+          "classes",
+          "argmax_output"
+        ],
+        "output": [
+          "array_feature_extractor_result"
+        ],
+        "name": "ArrayFeatureExtractor",
+        "opType": "ArrayFeatureExtractor",
+        "domain": "ai.onnx.ml"
+      },
+      {
+        "input": [
+          "array_feature_extractor_result",
+          "shape_tensor"
+        ],
+        "output": [
+          "reshaped_result"
+        ],
+        "name": "Reshape",
+        "opType": "Reshape",
+        "domain": ""
+      },
+      {
+        "input": [
+          "reshaped_result"
+        ],
+        "output": [
+          "label"
+        ],
+        "name": "Cast1",
+        "opType": "Cast",
+        "attribute": [
+          {
+            "name": "to",
+            "i": "7",
+            "type": "INT"
+          }
+        ],
+        "domain": ""
+      },
+      {
+        "input": [
+          "label"
+        ],
+        "output": [
+          "output_label"
+        ],
+        "name": "Cast2",
+        "opType": "Cast",
+        "attribute": [
+          {
+            "name": "to",
+            "i": "7",
+            "type": "INT"
+          }
+        ],
+        "domain": ""
+      }
+    ],
+    "name": "ONNX(MLPClassifier)",
+    "initializer": [
+      {
+        "dims": [
+          "5",
+          "4"
+        ],
+        "dataType": 11,
+        "name": "coefficient",
+        "doubleData": [
+          0.921540922317326,
+          -0.7598266266831254,
+          -0.12979889618314924,
+          0.17138240733839047,
+          0.842615762085351,
+          -0.5932267592093038,
+          -0.5541777191313183,
+          0.09529873845454195,
+          -0.35760797643583514,
+          0.9215599636544637,
+          -0.4817131355480858,
+          0.035874817798314654,
+          -0.13761163999332243,
+          -0.03757717116785669,
+          0.18936697669500158,
+          -0.034014897249074375,
+          0.7085681619756479,
+          -1.1424380022445153,
+          0.6063134313308015,
+          0.1988976735180309
+        ]
+      },
+      {
+        "dims": [
+          "1",
+          "4"
+        ],
+        "dataType": 11,
+        "name": "intercepts",
+        "doubleData": [
+          -0.3606347916023521,
+          1.1666854174590704,
+          -2.7675658093104687,
+          -2.5066057770407006
+        ]
+      },
+      {
+        "dims": [
+          "4"
+        ],
+        "dataType": 6,
+        "int32Data": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "name": "classes"
+      },
+      {
+        "dims": [
+          "1"
+        ],
+        "dataType": 7,
+        "int64Data": [
+          "-1"
+        ],
+        "name": "shape_tensor"
+      }
+    ],
+    "input": [
+      {
+        "name": "X",
+        "type": {
+          "tensorType": {
+            "elemType": 11,
+            "shape": {
+              "dim": [
+                {},
+                {
+                  "dimValue": "5"
+                }
+              ]
+            }
+          }
+        }
+      }
+    ],
+    "output": [
+      {
+        "name": "output_label",
+        "type": {
+          "tensorType": {
+            "elemType": 7,
+            "shape": {
+              "dim": [
+                {}
+              ]
+            }
+          }
+        }
+      },
+      {
+        "name": "output_probability",
+        "type": {
+          "sequenceType": {
+            "elemType": {
+              "mapType": {
+                "keyType": 7,
+                "valueType": {
+                  "tensorType": {
+                    "elemType": 11
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "opsetImport": [
+    {
+      "domain": "",
+      "version": "19"
+    },
+    {
+      "domain": "ai.onnx.ml",
+      "version": "1"
+    }
+  ]
+}

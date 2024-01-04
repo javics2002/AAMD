@@ -2,17 +2,21 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+using static UnityEditor.Experimental.GraphView.GraphView;
 
 public class MLPParameters
 {
     List<float[,]> coeficients;
     List<float[]> intercepts;
+    int layers;
 
     public MLPParameters(int numLayers)
     {
+        layers = numLayers;
+
         coeficients = new List<float[,]>();
         intercepts = new List<float[]>();
-        for (int i = 0; i < numLayers-1; i++)
+        for (int i = 0; i < numLayers - 1; i++)
         {
             coeficients.Add(null);
         }
@@ -32,8 +36,11 @@ public class MLPParameters
         coeficients[i][row, col] = v;
     }
 
+	public float[,] GetCoeficient(int index) {
+		return coeficients[index];
+	}
 
-    public void CreateIntercept(int i, int row)
+	public void CreateIntercept(int i, int row)
     {
         intercepts[i] = new float[row];
     }
@@ -42,6 +49,14 @@ public class MLPParameters
     {
         intercepts[i][row] = v;
     }
+
+	public float[] GetIntercept(int i) {
+		return intercepts[i];
+	}
+
+	public int GetLayers() {
+		return layers;
+	}
 }
 
 public class MLPModel
@@ -62,37 +77,73 @@ public class MLPModel
     {
         Parameters parameters = Record.ReadParameters(8, Time.timeSinceLevelLoad, p, transform);
         float[] input=parameters.ConvertToFloatArrat();
-        Debug.Log("input " + input.Length);
 
-        //TODO: implement feedworward.
-        //the size of the output layer depends on what actions you have performed in the game.
-        //By default it is 7 (number of possible actions) but some actions may not have been performed and therefore the model has assumed that they do not exist.
-        return new float[7];
-    }
+		//TODO: implement feedworward.
+		//the size of the output layer depends on what actions you have performed in the game.
+		//By default it is 7 (number of possible actions) but some actions may not have been performed and therefore the model has assumed that they do not exist.
+		List<float> activation = new List<float>();
+		activation.AddRange(input);
 
-    /// <summary>
-    /// Implements the conversion of the output value to the action label. 
-    /// Depending on what actions you have chosen or saved in the dataset, and in what order, the way it is converted will be one or the other.
-    /// </summary>
-    /// <param name="index"></param>
-    /// <returns></returns>
-    public Labels ConvertIndexToLabel(int index)
+        //Limpiar el input de valores no usados por el perceptron
+        activation.RemoveRange(5, 4);
+
+		for (int c = 0; c < mlpParameters.GetLayers() - 1; c++) {
+			float[,] coefficient = mlpParameters.GetCoeficient(c);
+			float[] intercepts = mlpParameters.GetIntercept(c);
+			float[] z = new float[coefficient.GetLength(1)];
+
+			for (int i = 0; i < z.Length; i++) {
+				z[i] = intercepts[i];
+				for (int j = 0; j < activation.Count; j++) {
+					z[i] += activation[j] * coefficient[j, i];
+				}
+			}
+
+			activation.Clear();
+			for (int i = 0; i < z.Length; i++) {
+				activation.Add(Sigmoid(z[i]));
+			}
+		}
+
+		return activation.ToArray();
+	}
+
+	float Sigmoid(float z) {
+		return 1 / (1 + Mathf.Exp(-z));
+	}
+
+	/// <summary>
+	/// Implements the conversion of the output value to the action label. 
+	/// Depending on what actions you have chosen or saved in the dataset, and in what order, the way it is converted will be one or the other.
+	/// </summary>
+	/// <param name="index"></param>
+	/// <returns></returns>
+	public Labels ConvertIndexToLabel(int index)
     {
-        //TODO: implement the conversion from index to actions.
-        return Labels.NONE;
-    }
+		switch (index) {
+			case 0:
+				return Labels.NONE;
+			case 1:
+				return Labels.ACCELERATE;
+			case 2:
+				return Labels.LEFT_ACCELERATE;
+			case 3:
+				return Labels.RIGHT_ACCELERATE;
+			default:
+				return Labels.NONE;
+		}
+	}
 
     public Labels Predict(float[] output)
     {
-        float max;
-        int index = GetIndexMaxValue(output, out max);
+        int index = GetIndexMaxValue(output, out float max);
+        Debug.Log(index + " " + max);
         Labels label = ConvertIndexToLabel(index);
         return label;
     }
 
     public int GetIndexMaxValue(float[] output, out float max)
     {
-        max = output[0];
         max = output[0];
         int index = 0;
         for(int i = 1; i < output.Length; i++)
@@ -144,6 +195,8 @@ public class MLAgent : MonoBehaviour
             case ModelType.MLP:
                 float[] outputs = this.mlpModel.FeedForward(perception,this.transform);
                 label = this.mlpModel.Predict(outputs);
+
+                Debug.Log(label);
                 break;
         }
         KartGame.KartSystems.InputData input = Record.ConvertLabelToInput(label);
@@ -194,10 +247,12 @@ public class MLAgent : MonoBehaviour
         MLPParameters mlpParameters = null;
         int currentParameter = -1;
         int[] currentDimension = null;
-        bool coefficient = false;
+        
         for (int i = 0; i < lines.Length; i++)
         {
-            string line = lines[i];
+			bool coefficient = false, intercept = false;
+
+			string line = lines[i];
             line = line.Trim();
             if(line != "")
             {
@@ -230,9 +285,8 @@ public class MLAgent : MonoBehaviour
                                 int index = currentParameter / 2;
                                 mlpParameters.CreateCoeficient(currentParameter, currentDimension[0], currentDimension[1]);
                             }
-                            else
-                            {
-                                coefficient = false;
+                            else if (val.StartsWith("intercepts")) {
+                                intercept = true;
                                 mlpParameters.CreateIntercept(currentParameter, currentDimension[1]);
                             }
 
@@ -250,7 +304,7 @@ public class MLAgent : MonoBehaviour
                                     int col = index % currentDimension[1];
                                     mlpParameters.SetCoeficiente(currentParameter, row, col, parameters[index]);
                                 }
-                                else
+                                else if (intercept)
                                 {
                                     mlpParameters.SetIntercept(currentParameter, index, parameters[index]);
                                 }

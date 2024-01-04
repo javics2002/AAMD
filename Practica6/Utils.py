@@ -6,17 +6,19 @@ import json
 def ExportONNX_JSON_TO_Custom(onnx_json,mlp):
     graphDic = onnx_json["graph"]
     initializer = graphDic["initializer"]
-    s= "num_layers:"+str(mlp.n_layers_)+"\n"
+    s = "num_layers:"+str(mlp.n_layers_)+"\n"
     index = 0
-    parameterIndex = 0;
+    parameterIndex = 0
     for parameter in initializer:
         s += "parameter:"+str(parameterIndex)+"\n"
-        print(parameter["dims"])
         s += "dims:"+str(parameter["dims"])+"\n"
-        print(parameter["name"])
         s += "name:"+str(parameter["name"])+"\n"
-        print(parameter["doubleData"])
-        s += "values:"+str(parameter["doubleData"])+"\n"
+        if "doubleData" in parameter:
+            s += "values:"+str(parameter["doubleData"])+"\n"
+        if "int32Data" in parameter:
+            s += "values:"+str(parameter["int32Data"])+"\n"
+        if "int64Data" in parameter:
+            s += "values:"+str(parameter["int64Data"])+"\n"
         index = index + 1
         parameterIndex = index // 2
     return s

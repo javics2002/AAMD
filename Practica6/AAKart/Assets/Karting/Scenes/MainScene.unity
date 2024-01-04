@@ -16427,7 +16427,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b54459dca25cfd947aa2a536fafe9c89, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  recordMode: 1
+  recordMode: 0
   perception: {fileID: 1910917298}
   kart: {fileID: 1304724376}
   keyboardInput: {fileID: 1304724378}
@@ -16439,7 +16439,7 @@ MonoBehaviour:
   - ray5
   snapshotTime: 0.1
   csvOutput: ML/Kart.csv
-  saveWhenFinish: 1
+  saveWhenFinish: 0
 --- !u!1001 &1687223860
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -18751,11 +18751,11 @@ MonoBehaviour:
   - 315
   - 270
   distance:
+  - 20
   - 10
+  - 5
   - 10
-  - 10
-  - 10
-  - 10
+  - 5
   layer: 11
   heightOffset: 0.5
 --- !u!114 &1910917303
@@ -18770,9 +18770,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 05ee481059e048e439f5fdf43f3e9d67, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  text: {fileID: 0}
+  text: {fileID: 4900000, guid: 859965ae9fffddf4bb14bfba66c636cf, type: 3}
   model: 0
-  agentEnable: 0
+  agentEnable: 1
 --- !u!1001 &1931383003
 PrefabInstance:
   m_ObjectHideFlags: 0
