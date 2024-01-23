@@ -1,0 +1,40 @@
+Javier Cano Salcedo
+
+1. Las imágenes parecen pequeñas, por lo que no sería necesario reducirlas.
+Aun así, se podría probar a comprimirlas con un autoencoder para extraer los
+datos más característicos.
+Se podrían toquetear los parámetros del perceptrón, como aumentar el número 
+de iteraciones y aumentar o disminuir la tasa de aprendizaje. Tambien podemos
+probar añadiendo más neuronas y más capas para que el modelo se adapte mejor.
+En cuanto a los datos, podríamos usar data augmentation rotando, volteando,
+escalando y distorsionando las imágenes para aumentar el número de muestras.
+
+2. Ninguno de los anteriores. Los arboles de decisión no son muy efectivos
+para modelso sin una aproximación lineal. Una red de neuronas profunda con
+3 capas convolucionales y la ultima linear tampoco porque esta capa se 
+especializa precisamente en modelos lineales. El prerceptrón multicapa
+con esa función de activación tampoco, porque es una función lineal simple, (a·x + b)
+y por tanto tampoco se adapta bien a modelos lineales.
+
+3. Utilizaria una estrategia de validación cruzada como K-Fold Cross Validation,
+dividiendo los datos en k subgrupos utilizando k-1 para el entrenamiento y 1 en
+la validación. Estos grupos también se pueden barajar para mitigar una ordenacion
+desafortunada para mejorar el entrenamiento de la red.
+
+4. El estado del juego se codificaría de la siguiente forma:
+- La posición del jugador se guardaría en 2 características de números enteros.
+- El input se codificaría con un one hot encoding de tamaño número de inputs 
+que tenga el juego (4 en este caso)
+- La posición de los enemigos en 2 características enteras cada uno.
+Se asume que en este caso solo hay 1.
+- El contenido de las 8 casillas contiguas al jugador también se codificarían
+con one hot encoding de tamaño 4 en este caso.
+
+El perceptrón tendría una entrada formada por 2 + 1 * 2 + 8 * 4 = 36 neuronas
+y la salida tendría 4 neuronas, representando la probabilidad de realizar cada
+uno de los input posibles.
+
+Para entrenar el perceptrón me grabaría jugando durante mucho tiempo jugando, 
+generando un dataframe por partida, con una entrada cada cierto tiempo, como
+una entrada por frame.
+
